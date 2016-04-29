@@ -12,23 +12,22 @@ import boto3
 import base64
 import pg8000
 import datetime
+import os
 
 #### Configuration
 
-user = 'dbuser'
-enc_password = 'CiC5vxxxxxNg=='
-host = 'endpoint'
-port = 8192
-database = 'dbname'
+user = os.environ['DB_USER']
+password = os.environ['DB_PASS']
+host = os.environ['DB_HOST']
+port = int(os.environ['DB_PORT'])
+database = os.environ['DB_NAME']
 ssl = True
-cluster = 'clustername'
-interval = '1 hour'
+cluster = os.environ['CLUSTER_NAME']
+interval = os.environ['INTERVAL']
 debug = True
 
 ##################
 
-kms = boto3.client('kms')
-password = kms.decrypt(CiphertextBlob=base64.b64decode(enc_password))['Plaintext']
 cw = boto3.client('cloudwatch')
 
 pg8000.paramstyle = "qmark"
@@ -36,12 +35,12 @@ pg8000.paramstyle = "qmark"
 def run_command(cursor, statement):
     if debug:
         print("Running Statement: %s" % statement)
-        
+
     return cursor.execute(statement)
 
 def lambda_handler(event, context):
     conn = pg8000.connect(database=database, user=user, password=password, host=host, port=port, ssl=ssl)
-    
+
     if debug:
         print('Succesfully Connected Redshift Cluster')
     cursor = conn.cursor()
@@ -53,7 +52,7 @@ def lambda_handler(event, context):
     number_tables_skew = 0
 
     number_tables = 0
-    
+
     max_skew_sort_ratio = 0
     total_skew_sort_ratio = 0
     number_tables_skew_sort = 0
@@ -143,7 +142,7 @@ def lambda_handler(event, context):
 
     if debug:
         print("Publishing CloudWatch Metrics")
-        
+
     cw.put_metric_data(
     	Namespace='Redshift',
     	MetricData=[
