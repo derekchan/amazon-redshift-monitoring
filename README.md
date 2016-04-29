@@ -4,9 +4,6 @@ The original version works only on Lambda. We don't use Lambda here, so I patche
 
 ## Usage
 
-* Download dependencies
->pip install -r requirements.txt -t .
-
 * Create user in Redshift
 >grant select on all tables in schema pg_catalog to tamreporting
 
@@ -20,8 +17,10 @@ The original version works only on Lambda. We don't use Lambda here, so I patche
   * INTERVAL : how frequent you intend to run this monitoring, e.g. "1 hour"
   * AWS_ACCESS_KEY_ID : Access ID with access to cloudwatch:PutMetricData
   * AWS_SECRET_ACCESS_KEY : Secret access key
+  * AWS_DEFAULT_REGION : AWS region of the Redshift cluster
 
-* Copy the code to your server and set up a cron
+* Copy the code to your server and set up a hourly cron job
+> ./run.sh
 
 * After a few hours you can check your CloudWatch metrics, and create alarms. You can also create a Dashboard with all the graphs and have a view of your database as this one:
 
